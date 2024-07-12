@@ -82,7 +82,11 @@ def init_world():
 
 def clear_world():
 
-    global world
+    global terrain_prim_path, label_prim_path
+
+    #prims_utils.delete_prim(terrain_prim_path)
+    #prims_utils.delete_prim(label_prim_path)
+
     world.clear()
 
 def load_mesh( prim_path, usd_path ):
@@ -154,8 +158,8 @@ def randomly_position_camera(bounding_box_mins=(-125, -125, 0), bounding_box_max
     target_position_max = target_scalar * numpy.array([maximum[0], maximum[2], 0])
     target_position = numpy.random.uniform(target_position_min, target_position_max)
     
-    minimum_height = maximum[1] * 2 
-    maximum_height = maximum[1] * 3
+    minimum_height = 15#maximum[1] * 2 
+    maximum_height = 45#maximum[1] * 3
     
     height = numpy.random.uniform(minimum_height, maximum_height)
     radius = numpy.random.uniform(0, height)
@@ -247,19 +251,31 @@ rgb_usds = sorted(list(glob.glob(f"{args.world_directory}/*rgb*.usd")))
 label_usds = sorted(list(glob.glob(f"{args.world_directory}/*label*.usd")))
 worlds = list(zip(rgb_usds, label_usds))
 print(f"{worlds=}")
+print(f"{len(worlds)=}")
 output_directory = f"{args.world_directory}/dataset"
 
 WriterRegistry.register(MyCustomWriter)
 
 time_deltas = []
 
-data_points_per_world = 20
+data_points_per_world = 30
 for world_index in range(len(worlds)):
 #for world_index in range(0):
 
     start_time = datetime.now()
 
-    load_world(world_index)
+
+    # sanity check
+    try:
+        load_world(world_index)
+        stage = omni.usd.get_context().get_stage()
+        terrain_prim = stage.GetPrimAtPath( terrain_prim_path )
+        label_prim = stage.GetPrimAtPath( label_prim_path )
+    except:
+        print(f"error on this world! {world_index=}")
+        time.sleep(10)
+        continue
+
     #writer = MyCustomWriter("/home/joshua/datasets/test1", starting_frame_id=data_points_per_world * world_index)
     writer = MyCustomWriter(output_directory, starting_frame_id=data_points_per_world * world_index)
 

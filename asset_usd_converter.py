@@ -82,7 +82,7 @@ if __name__ == "__main__":
         "--folders", type=str, nargs="+", default=None, help="List of folders to convert (space seperated)."
     )
     parser.add_argument(
-        "--max-models", type=int, default=500, help="If specified, convert up to `max-models` per folder."
+        "--max-models", type=int, default=10000, help="If specified, convert up to `max-models` per folder."
     )
     parser.add_argument(
         "--load-materials", action="store_true", help="If specified, materials will be loaded from meshes"
